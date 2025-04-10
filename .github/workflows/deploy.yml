@@ -1,0 +1,42 @@
+name: Deploy BDD PHP MySql
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando hagas push a main
+  workflow_dispatch:  # Permite ejecutar manualmente desde GitHub Actions
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v3
+
+      - name: Verificar las variables de entorno
+        run: |
+          echo "IP del servidor: ${{ secrets.SERVER_IP }}"
+          echo "Usuario: ${{ secrets.SERVER_USER }}"
+          echo "Puerto SSH: ${{ secrets.SERVER_SSH_PORT }}"      
+      
+      - name: Copiar archivos al servidor con puerto SSH personalizado
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}  # Cambiar vars a secrets          
+          source: "." # Fuente: el directorio actual en GitHub
+          target: "/e/docker-proyectos/practica-app-php/app" # Ruta adaptada para Windows en SSH (c:/mi-proyecto/app)
+
+      - name: Construir y desplegar con Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}  # Cambiar vars a secrets
+          script: |
+            cd /e/docker-proyectos/practica-app-php/app
+            docker-compose down
+            docker-compose up -d --build
