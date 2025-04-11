@@ -27,7 +27,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}  # Cambiar vars a secrets          
           source: "." # Fuente: el directorio actual en GitHub
-          target: "/e/docker-proyectos/practica-app-php/app" # Ruta adaptada para Windows en SSH (c:/mi-proyecto/app)
+          target: "/e/docker-proyectos/practica-app-php" # Ruta adaptada para Windows en SSH (c:/mi-proyecto/app)
 
       - name: Construir y desplegar con Docker Compose
         uses: appleboy/ssh-action@master
@@ -37,6 +37,6 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}  # Cambiar vars a secrets
           script: |
-            cd /e/docker-proyectos/practica-app-php/app
+            cd /e/docker-proyectos/practica-app-php
             docker-compose down
             docker-compose up -d --build
